@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Find My Phone</string>
     <string name="tap_exit">Tap again to exit</string>
+    <string name="clap_detected">Clap Detected</string>
+    <string name="clap_sound_detected">A clap sound was detected</string>
+    <string name="notifications_for_clap_detection">Notifications for clap detection</string>
+    <string name="clap_detection">Clap Detection</string>
+
 </resources>
