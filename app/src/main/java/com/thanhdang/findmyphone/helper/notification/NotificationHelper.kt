@@ -2,6 +2,7 @@ package com.thanhdang.findmyphone.helper.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -31,7 +32,10 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.clap_detected))
             .setContentText(context.getString(R.string.clap_sound_detected))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
             if (areNotificationsEnabled()) {

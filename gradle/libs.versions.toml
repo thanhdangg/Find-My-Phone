@@ -3,21 +3,22 @@ agp = "8.6.1"
 converterGson = "2.9.0"
 countryCodePickerVersion = "2.5.0"
 firebaseBom = "33.4.0"
-glideVersion = "4.12.0"
+glideVersion = "4.16.0"
+jtransforms = "3.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
-lifecycleVersion = "2.6.2"
-locationVersion = "20.0.0"
+lifecycleVersion = "2.8.6"
+locationVersion = "21.3.0"
 lottieVersion = "3.4.0"
-mapsVersion = "18.2.0"
+mapsVersion = "19.0.0"
 material = "1.12.0"
-activity = "1.9.2"
+activity = "1.9.3"
 constraintlayout = "2.1.4"
-navigationVersion = "2.5.3"
+navigationVersion = "2.8.3"
 retrofit = "2.9.0"
 roomVersion = "2.6.1"
 shimmerVersion = "0.5.0"
@@ -32,12 +33,13 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 ccp = { module = "com.hbb20:ccp", version.ref = "countryCodePickerVersion" }
-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glideVersion" }
+#compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glideVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
+jtransforms = { module = "com.github.wendykierp:JTransforms", version.ref = "jtransforms" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

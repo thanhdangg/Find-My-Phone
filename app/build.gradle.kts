@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("kotlin-parcelize")
+//    id("com.google.devtools.ksp") version "1.8.21-1.0.11" // Correct application
 
 
 }
@@ -43,26 +44,7 @@ android {
 }
 
 dependencies {
-    val coreKtxVersion: String by project
-    val appcompatVersion: String by project
-    val materialVersion: String by project
-    val constraintLayoutVersion: String by project
-    val mapsVersion: String by project
-    val locationVersion: String by project
-    val junitVersion: String by project
-    val androidxTestExtJunitVersion: String by project
-    val espressoCoreVersion: String by project
-    val socketIoClientVersion: String by project
-    val gsonVersion: String by project
-    val lifecycleVersion: String by project
-    val glideVersion: String by project
-    val lottieVersion: String by project
-    val navigationVersion: String by project
-    val retrofit2Version: String by project
-    val countryCodePickerVersion: String by project
     val roomVersion: String by project
-    val playServiceAdsVersion: String by project
-    val shimmerVersion: String by project
 
     // testing
     implementation(libs.androidx.core.ktx)
@@ -99,7 +81,7 @@ dependencies {
 
     // glide
     implementation(libs.glide)
-    implementation(libs.compiler)
+//    implementation(libs.compiler)
 
     //lottie animation
     implementation(libs.lottie)
@@ -119,10 +101,14 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
-//    ksp("androidx.room:room-compiler:2.5.0")
+//    ksp("androidx.room:room-compiler:$roomVersion")
 
     implementation(libs.androidx.room.ktx)
 
     // shimmer effect
     implementation(libs.shimmer)
+
+    // Fourier Transform
+    implementation(libs.jtransforms)
+
 }
