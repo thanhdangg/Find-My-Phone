@@ -36,8 +36,8 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
                 isListening = false
                 binding.btnPower.setImageResource(R.drawable.btn_pause)
 
-                val serviceIntent = Intent(this, ClapDetectionService::class.java)
-                startForegroundService(serviceIntent)
+//                val serviceIntent = Intent(this, ClapDetectionService::class.java)
+//                startForegroundService(serviceIntent)
             }
             else {
                 ClapDetector.startListening(this) {
@@ -46,6 +46,7 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
                 isListening = true
                 binding.btnPower.setImageResource(R.drawable.btn_power)
 
+//                stopService(Intent(this, ClapDetectionService::class.java))
             }
         }
     }
