@@ -2,6 +2,7 @@ package com.thanhdang.findmyphone.ui.screen.main
 
 import android.content.Intent
 import android.view.LayoutInflater
+import android.widget.Toast
 import com.thanhdang.findmyphone.R
 import com.thanhdang.findmyphone.databinding.ActivityMainBinding
 import com.thanhdang.findmyphone.helper.notification.NotificationHelper
@@ -42,6 +43,9 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
             else {
                 ClapDetector.startListening(this) {
                     NotificationHelper.sendNotification(this)
+                    runOnUiThread {
+                        Toast.makeText(this, "Double clap detected", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 isListening = true
                 binding.btnPower.setImageResource(R.drawable.btn_power)

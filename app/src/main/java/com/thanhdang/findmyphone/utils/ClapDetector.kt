@@ -15,15 +15,18 @@ import kotlin.math.sqrt
 object ClapDetector {
     private const val SAMPLE_RATE = 44100
     private const val BUFFER_SIZE = 2048
-    private const val CLAP_THRESHOLD_MAX = 30000
-    private const val CLAP_TIME_MIN = 50 // milliseconds
-    private const val CLAP_TIME_MAX = 500 // milliseconds
-    private const val DOUBLE_CLAP_TIME = 700 // milliseconds
+
+    private const val FREQUENCY_MIN = 2200 // Hz
+    private const val FREQUENCY_MAX = 2800 // Hz
+    private const val LOW_FREQ_THRESHOLD = 2000 // Hz
+    private const val MIN_CLAP_INTERVAL = 200 // ms
+    private const val MAX_CLAP_INTERVAL = 400 // ms
+    private const val ENERGY_THRESHOLD = 15.0
+    private const val ENERGY_RATIO_THRESHOLD = 0.1
 
     private var isListening = false
-    private var firstClapTime = 0L
-    private var lastClapTime = 0L
-    private var clapCount = 0
+    private var lastClapTime: Long = 0
+    private var clapCount = 0 // Biến đếm số lần vỗ tay
 
     fun startListening(context: Context, onDoubleClapDetected: () -> Unit) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -41,27 +44,25 @@ object ClapDetector {
         )
 
         audioRecord.startRecording()
-        val buffer = ShortArray(BUFFER_SIZE)
-        val fft = DoubleFFT_1D(BUFFER_SIZE.toLong())
 
         Thread {
+            val audioData = ShortArray(BUFFER_SIZE)
+
             while (isListening) {
-                val read = audioRecord.read(buffer, 0, BUFFER_SIZE)
-                if (read > 0) {
-                    val currentTime = System.currentTimeMillis()
-                    if (detectClap(buffer, fft)) {
-                        if (currentTime - lastClapTime in CLAP_TIME_MIN..CLAP_TIME_MAX) {
+                val readSize = audioRecord.read(audioData, 0, BUFFER_SIZE)
+                if (readSize > 0) {
+                    val energyRatio = analyzeFrequency(audioData)
+//                    Log.d(TAG.ClapDetector, "Energy ratio: $energyRatio")
+                    if (isClap(energyRatio)) {
+                        val currentTime = System.currentTimeMillis()
+                        if (isDoubleClap(currentTime)) {
                             clapCount++
-                            if (clapCount == 2 && currentTime - firstClapTime <= DOUBLE_CLAP_TIME) {
+                            if (clapCount == 2) {
                                 onDoubleClapDetected()
-                                clapCount = 0
-                                Log.d(TAG.ClapDetector, "Double clap detected")
+                                clapCount = 0 // Reset sau khi phát hiện double clap
                             }
-                        } else {
-                            clapCount = 1
-                            firstClapTime = currentTime
                         }
-                        Log.d(TAG.ClapDetector, "Clap count: $clapCount")
+                        Log.d(CONSTANT.ClapDetector, "${energyRatio} clap counts: $clapCount")
                         lastClapTime = currentTime
                     }
                 }
@@ -71,12 +72,48 @@ object ClapDetector {
         }.start()
     }
 
-    private fun detectClap(buffer: ShortArray, fft: DoubleFFT_1D): Boolean {
-        val audioData = buffer.map { it.toDouble() }.toDoubleArray()
-        fft.realForward(audioData)
-        val magnitude = sqrt(audioData[0] * audioData[0] + audioData[1] * audioData[1])
-//        Log.d(TAG.ClapDetector, "Magnitude: $magnitude")
-        return magnitude > CLAP_THRESHOLD_MAX
+    private fun analyzeFrequency(audioData: ShortArray): Double {
+        val fft = DoubleFFT_1D(audioData.size.toLong())
+        val fftData = DoubleArray(audioData.size * 2)
+
+        for (i in audioData.indices) {
+            fftData[i] = audioData[i].toDouble()
+        }
+
+        fft.realForward(fftData)
+
+        val startClapFreqIndex = (FREQUENCY_MIN * audioData.size / SAMPLE_RATE).toInt()
+        val endClapFreqIndex = (FREQUENCY_MAX * audioData.size / SAMPLE_RATE).toInt()
+
+        var clapEnergy = 0.0
+        for (i in startClapFreqIndex..endClapFreqIndex) {
+            val real = fftData[2 * i]
+            val imaginary = fftData[2 * i + 1]
+            clapEnergy += sqrt(real * real + imaginary * imaginary)
+        }
+
+        val lowFreqIndex = (LOW_FREQ_THRESHOLD * audioData.size / SAMPLE_RATE).toInt()
+        var lowFreqEnergy = 0.0
+        for (i in 0 until lowFreqIndex) {
+            val real = fftData[2 * i]
+            val imaginary = fftData[2 * i + 1]
+            lowFreqEnergy += sqrt(real * real + imaginary * imaginary)
+        }
+
+        return if (lowFreqEnergy > 0) {
+            clapEnergy / lowFreqEnergy
+        } else {
+            0.0
+        }
+    }
+
+    private fun isClap(energyRatio: Double): Boolean {
+        return energyRatio > ENERGY_RATIO_THRESHOLD
+    }
+
+    private fun isDoubleClap(currentTime: Long): Boolean {
+        val interval = currentTime - lastClapTime
+        return interval in MIN_CLAP_INTERVAL..MAX_CLAP_INTERVAL
     }
 
     fun stopListening() {
