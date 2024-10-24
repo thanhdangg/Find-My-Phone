@@ -5,4 +5,5 @@ object TAG {
     const val NotificationHelper = "NotificationHelper"
     const val ZoneDeletionCallback = "ZoneDeletionCallback"
     const val ActivityMain = "ActivityMain"
+    const val FrequencyRecorder = "FrequencyRecorder"
 }

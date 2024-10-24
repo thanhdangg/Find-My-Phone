@@ -13,21 +13,13 @@ import androidx.core.app.ActivityCompat
 import org.jtransforms.fft.DoubleFFT_1D
 import kotlin.math.sqrt
 
-object ClapDetector {
+object FrequencyRecorder {
     private const val SAMPLE_RATE = 44100
     private const val BUFFER_SIZE = 2048
 
-    private const val CLAP_FREQUENCY_MIN = 1800
-    private const val CLAP_FREQUENCY_MAX = 2800
-    private const val CLAP_INTERVAL_MIN = 200 // milliseconds
-    private const val CLAP_INTERVAL_MAX = 400 // milliseconds
-    private const val AMPLITUDE_THRESHOLD = 1000000 // Threshold to detect clap
-
-
     private var isRecording = false
-    private var lastClapTime: Long = 0
 
-    fun startListening(context: Context, onDoubleClapDetected: () -> Unit) {
+    fun startRecording(context: Context) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
             Toast.makeText(context, "Microphone permission required", Toast.LENGTH_SHORT).show()
@@ -70,22 +62,7 @@ object ClapDetector {
 
                     val maxMagnitudeIndex = magnitudes.indices.maxByOrNull { magnitudes[it] } ?: -1
                     val frequency = maxMagnitudeIndex * SAMPLE_RATE / BUFFER_SIZE
-                    val maxAmplitude = magnitudes[maxMagnitudeIndex]
-
-                    Log.d(TAG.ClapDetector, "Detected frequency: $frequency Hz, Amplitude: ${maxAmplitude.toInt()}")
-
-                    // Detect clap here: The sound frequency of an hand clap is typically within the 2200 to 2800 hertz range
-                    // Duration: A clap is typically 0.2 – 0.3 seconds long
-                    // Time interval: The time interval between claps is usually 0.2 – 0.5 seconds
-                    if (frequency in CLAP_FREQUENCY_MIN..CLAP_FREQUENCY_MAX && maxAmplitude > AMPLITUDE_THRESHOLD) {
-                        val currentTime = System.currentTimeMillis()
-
-                    // Debouncing to avoid multiple detections of the same clap
-                        if (lastClapTime != 0L && (currentTime - lastClapTime) in CLAP_INTERVAL_MIN..CLAP_INTERVAL_MAX) {
-                            onDoubleClapDetected()
-                        }
-                        lastClapTime = currentTime
-                    }
+                    Log.d(TAG.FrequencyRecorder, "Detected frequency: $frequency Hz")
                 }
             }
             audioRecord.stop()
@@ -93,7 +70,7 @@ object ClapDetector {
         }.start()
     }
 
-    fun stopListening() {
+    fun stopRecording() {
         isRecording = false
     }
 }

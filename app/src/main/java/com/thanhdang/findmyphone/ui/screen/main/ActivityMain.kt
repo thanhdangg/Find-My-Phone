@@ -9,6 +9,7 @@ import com.thanhdang.findmyphone.helper.notification.NotificationHelper
 import com.thanhdang.findmyphone.service.ClapDetectionService
 import com.thanhdang.findmyphone.ui.base.BaseActivity
 import com.thanhdang.findmyphone.utils.ClapDetector
+import com.thanhdang.findmyphone.utils.FrequencyRecorder
 
 class ActivityMain : BaseActivity<ActivityMainBinding>() {
     private var isListening = false
@@ -34,6 +35,7 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
         binding.btnPower.setOnClickListener {
             if (isListening) {
                 ClapDetector.stopListening()
+//                FrequencyRecorder.startRecording(this)
                 isListening = false
                 binding.btnPower.setImageResource(R.drawable.btn_pause)
 
@@ -41,6 +43,7 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
 //                startForegroundService(serviceIntent)
             }
             else {
+//                FrequencyRecorder.stopRecording()
                 ClapDetector.startListening(this) {
                     NotificationHelper.sendNotification(this)
                     runOnUiThread {
