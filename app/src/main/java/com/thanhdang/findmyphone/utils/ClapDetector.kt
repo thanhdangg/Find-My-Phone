@@ -6,10 +6,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.thanhdang.findmyphone.R
 import org.jtransforms.fft.DoubleFFT_1D
 import kotlin.math.sqrt
 
@@ -25,6 +27,9 @@ object ClapDetector {
     private var isRecording = false
     private var lastClapTime: Long = 0
     private var clapCount = 0
+
+    private var mediaPlayer: MediaPlayer? = null
+
 
     fun startListening(context: Context, onDoubleClapDetected: () -> Unit) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -79,12 +84,14 @@ object ClapDetector {
                             if (clapCount == 2) {
                                 Log.d(TAG.ClapDetector, "Double clap detected")
                                 onDoubleClapDetected()
+                                playAlarmSound(context)
+
                                 clapCount = 0 // Reset the count after detection
                             }
                         } else {
                             clapCount = 1 // Reset the count if the interval is too long
                         }
-                        Log.d(TAG.ClapDetector, "clapCount: $clapCount")
+//                        Log.d(TAG.ClapDetector, "clapCount: $clapCount")
                         lastClapTime = currentTime
                     }
                 }
@@ -96,5 +103,17 @@ object ClapDetector {
 
     fun stopListening() {
         isRecording = false
+    }
+    private fun playAlarmSound(context: Context) {
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(context, R.raw.alarm_sound)
+            mediaPlayer?.isLooping = true
+        }
+        mediaPlayer?.start()
+    }
+    fun stopAlarmSound() {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 }
