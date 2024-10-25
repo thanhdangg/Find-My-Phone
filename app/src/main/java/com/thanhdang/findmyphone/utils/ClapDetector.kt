@@ -16,26 +16,21 @@ import kotlin.math.sqrt
 object ClapDetector {
     private const val SAMPLE_RATE = 44100
     private const val BUFFER_SIZE = 2048
-
     private const val CLAP_FREQUENCY_MIN = 1800
     private const val CLAP_FREQUENCY_MAX = 2800
-    private const val CLAP_INTERVAL_MIN = 200 // milliseconds
+    private const val CLAP_INTERVAL_MIN = 50 // milliseconds
     private const val CLAP_INTERVAL_MAX = 400 // milliseconds
     private const val AMPLITUDE_THRESHOLD = 1000000 // Threshold to detect clap
 
-
     private var isRecording = false
     private var lastClapTime: Long = 0
+    private var clapCount = 0
 
     fun startListening(context: Context, onDoubleClapDetected: () -> Unit) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
             Toast.makeText(context, "Microphone permission required", Toast.LENGTH_SHORT).show()
             return
-        }
-        else{
-            // request permission microphone
-            ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
         }
 
         isRecording = true
@@ -47,7 +42,6 @@ object ClapDetector {
             AudioFormat.ENCODING_PCM_16BIT,
             BUFFER_SIZE
         )
-
         audioRecord.startRecording()
 
         Thread {
@@ -72,7 +66,7 @@ object ClapDetector {
                     val frequency = maxMagnitudeIndex * SAMPLE_RATE / BUFFER_SIZE
                     val maxAmplitude = magnitudes[maxMagnitudeIndex]
 
-                    Log.d(TAG.ClapDetector, "Detected frequency: $frequency Hz, Amplitude: ${maxAmplitude.toInt()}")
+//                    Log.d(TAG.ClapDetector, "Detected frequency: $frequency Hz, Amplitude: ${maxAmplitude.toInt()}")
 
                     // Detect clap here: The sound frequency of an hand clap is typically within the 2200 to 2800 hertz range
                     // Duration: A clap is typically 0.2 – 0.3 seconds long
@@ -80,10 +74,17 @@ object ClapDetector {
                     if (frequency in CLAP_FREQUENCY_MIN..CLAP_FREQUENCY_MAX && maxAmplitude > AMPLITUDE_THRESHOLD) {
                         val currentTime = System.currentTimeMillis()
 
-                    // Debouncing to avoid multiple detections of the same clap
                         if (lastClapTime != 0L && (currentTime - lastClapTime) in CLAP_INTERVAL_MIN..CLAP_INTERVAL_MAX) {
-                            onDoubleClapDetected()
+                            clapCount++
+                            if (clapCount == 2) {
+                                Log.d(TAG.ClapDetector, "Double clap detected")
+                                onDoubleClapDetected()
+                                clapCount = 0 // Reset the count after detection
+                            }
+                        } else {
+                            clapCount = 1 // Reset the count if the interval is too long
                         }
+                        Log.d(TAG.ClapDetector, "clapCount: $clapCount")
                         lastClapTime = currentTime
                     }
                 }
