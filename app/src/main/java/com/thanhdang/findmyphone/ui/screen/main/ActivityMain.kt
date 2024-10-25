@@ -37,7 +37,6 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
         binding.btnPower.setOnClickListener {
             if (isListening) {
                 ClapDetector.stopListening()
-
 //                FrequencyRecorder.startRecording(this)
                 isListening = false
                 binding.btnPower.setImageResource(R.drawable.btn_pause)
@@ -61,6 +60,7 @@ class ActivityMain : BaseActivity<ActivityMainBinding>() {
                 binding.btnPower.setImageResource(R.drawable.btn_power)
 
                 stopService(Intent(this, ClapDetectionService::class.java))
+
             }
             ClapDetector.stopAlarmSound() // Stop the alarm sound
 
